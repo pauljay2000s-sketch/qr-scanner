@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>QR Attendance Scanner</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    :root {
+      --blue:       #0047CC;
+      --blue-dark:  #003399;
+      --blue-light: #E8F0FF;
+      --green:      #0A7C3E;
+      --green-bg:   #E6F4ED;
+      --red:        #C0392B;
+      --red-bg:     #FDECEA;
+      --ink:        #111827;
+      --muted:      #6B7280;
+      --border:     #E5E7EB;
+      --surface:    #FFFFFF;
+      --bg:         #F3F6FB;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--ink);
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      background: var(--blue);
+      padding: 1.1rem 1.5rem 1rem;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+      pointer-events: none;
+    }
+    .header-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .header-sub {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      margin-top: 0.2rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── Main content ── */
+    .content {
+      width: 100%;
+      max-width: 420px;
+      padding: 1rem 1rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Strand pill selector ── */
+    .strand-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .strand-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .strand-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .pill {
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.78rem;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .pill:hover { border-color: var(--blue); color: var(--blue); }
+    .pill.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+    }
+
+    /* ── Camera card ── */
+    .camera-card {
+      background: var(--surface);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      position: relative;
+    }
+    .camera-label {
+      padding: 0.7rem 1rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .cam-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #ccc;
+      transition: background 0.3s;
+    }
+    .cam-dot.active { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    #reader {
+      width: 100%;
+      min-height: 240px;
+    }
+    /* Override html5-qrcode default styles */
+    #reader video { border-radius: 0 !important; }
+    #reader img   { display: none !important; }
+
+    /* ── Info card ── */
+    .info-card {
+      background: var(--surface);
+      border-radius: 16px;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .info-card-header {
+      padding: 0.7rem 1rem 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-rows { padding: 0.25rem 0; }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-key {
+      font-size: 0.78rem;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .info-val {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-align: right;
+    }
+    .info-val.empty { color: var(--border); font-weight: 400; }
+
+    /* ── Status banner ── */
+    .status-banner {
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .status-banner.show { display: flex; }
+    .status-banner.error   { background: var(--red-bg);   color: var(--red);   }
+    .status-banner.success { background: var(--green-bg); color: var(--green); }
+    .status-banner.info    { background: var(--blue-light); color: var(--blue); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 10px;
+      background: var(--blue);
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+    .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1.5px solid var(--blue);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--blue);
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: none;
+    }
+    .btn-secondary:hover { background: var(--blue-light); }
+    .btn-secondary.show { display: block; }
+
+    .btn-row { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    /* ── History ── */
+    .history-section { display: flex; flex-direction: column; gap: 0.5rem; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+    .history-empty {
+      font-size: 0.85rem;
+      color: var(--border);
+      font-style: italic;
+      padding: 0.3rem 0;
+    }
+    .history-item {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn 0.25s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hi-left { display: flex; flex-direction: column; gap: 0.1rem; }
+    .hi-name { font-size: 0.88rem; font-weight: 700; color: var(--ink); }
+    .hi-meta { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .hi-time {
+      font-size: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--green);
+      font-weight: 600;
+      background: var(--green-bg);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">QR Attendance Scanner</div>
+  <div class="header-sub">Point camera at student QR code</div>
+</header>
+
+<div class="content">
+
+  <!-- Strand filter -->
+  <div class="strand-row">
+    <span class="strand-label">Strand</span>
+    <div class="strand-pills" id="strandPills">
+      <div class="pill active" data-strand="">ALL</div>
+      <div class="pill" data-strand="HUMSS">HUMSS</div>
+      <div class="pill" data-strand="STEM">STEM</div>
+      <div class="pill" data-strand="ABM">ABM</div>
+      <div class="pill" data-strand="GAS">GAS</div>
+      <div class="pill" data-strand="TVL">TVL</div>
+      <div class="pill" data-strand="ARTS">ARTS</div>
+    </div>
+  </div>
+
+  <!-- Camera -->
+  <div class="camera-card">
+    <div class="camera-label">
+      <span class="cam-dot" id="camDot"></span>
+      Camera
+    </div>
+    <div id="reader"></div>
+  </div>
+
+  <!-- Status banner -->
+  <div class="status-banner" id="statusBanner"></div>
+
+  <!-- Student info -->
+  <div class="info-card">
+    <div class="info-card-header">Student Info</div>
+    <div class="info-rows">
+      <div class="info-row"><span class="info-key">ID</span>      <span class="info-val empty" id="fId">—</span></div>
+      <div class="info-row"><span class="info-key">Name</span>    <span class="info-val empty" id="fName">—</span></div>
+      <div class="info-row"><span class="info-key">Section</span> <span class="info-val empty" id="fSection">—</span></div>
+      <div class="info-row"><span class="info-key">Strand</span>  <span class="info-val empty" id="fStrand">—</span></div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="btn-row">
+    <button class="btn-primary" id="submitBtn" disabled>Submit Attendance</button>
+    <button class="btn-secondary" id="rescanBtn">↩ Scan Another Student</button>
+  </div>
+
+  <!-- History -->
+  <div class="history-section">
+    <div class="section-label">Session Log</div>
+    <div class="history-empty" id="historyEmpty">No scans yet this session.</div>
+    <div id="historyList"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────────────
+  // YOUR deployed Apps Script URL:
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxqk1rzXE_PzHCDhgaEOSdsEGBIc1yy5uxUpGILDX3QEgxollNT30kdofvi82JiuFY4/exec";
+
+  // ── State ─────────────────────────────────────────────────────────
+  let scannedData    = null;
+  let selectedStrand = "";
+  let html5QrCode    = null;
+  let scannerRunning = false;
+
+  // ── DOM refs ──────────────────────────────────────────────────────
+  const submitBtn   = document.getElementById("submitBtn");
+  const rescanBtn   = document.getElementById("rescanBtn");
+  const statusEl    = document.getElementById("statusBanner");
+  const camDot      = document.getElementById("camDot");
+  const historyList = document.getElementById("historyList");
+  const historyEmpty= document.getElementById("historyEmpty");
+
+  // ── Strand pills ──────────────────────────────────────────────────
+  document.getElementById("strandPills").addEventListener("click", e => {
+    const pill = e.target.closest(".pill");
+    if (!pill) return;
+    document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+    pill.classList.add("active");
+    selectedStrand = pill.dataset.strand;
+  });
+
+  // ── Status helper ─────────────────────────────────────────────────
+  function setStatus(msg, type = "error") {
+    statusEl.textContent = msg;
+    statusEl.className   = "status-banner show " + type;
+  }
+  function clearStatus() {
+    statusEl.className = "status-banner";
+  }
+
+  // ── Card fill helpers ─────────────────────────────────────────────
+  function fillCard(data) {
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      el.textContent = val;
+      el.classList.remove("empty");
+    };
+    set("fId",      data.id);
+    set("fName",    data.name);
+    set("fSection", data.section);
+    set("fStrand",  data.strand);
+  }
+
+  function clearCard() {
+    ["fId","fName","fSection","fStrand"].forEach(id => {
+      const el = document.getElementById(id);
+      el.textContent = "—";
+      el.classList.add("empty");
+    });
+  }
+
+  // ── QR Scanner ────────────────────────────────────────────────────
+  function startScanner() {
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 220, height: 220 } },
+      onScanSuccess,
+      () => {}
+    ).then(() => {
+      scannerRunning = true;
+      camDot.classList.add("active");
+    }).catch(err => {
+      setStatus("❌ Camera error: " + err, "error");
+    });
+  }
+
+  function stopScanner() {
+    if (html5QrCode && scannerRunning) {
+      html5QrCode.stop().then(() => {
+        scannerRunning = false;
+        camDot.classList.remove("active");
+      }).catch(() => {});
+    }
+  }
+
+  function onScanSuccess(decodedText) {
+    let data;
+    try {
+      data = JSON.parse(decodedText);
+    } catch {
+      setStatus("❌ Invalid QR — expected JSON format.", "error");
+      return;
+    }
+
+    if (!data.id || !data.name || !data.section || !data.strand) {
+      setStatus("❌ QR is missing required fields (id, name, section, strand).", "error");
+      return;
+    }
+
+    if (selectedStrand && data.strand.toUpperCase() !== selectedStrand) {
+      setStatus(`❌ This QR is for ${data.strand}, but scanner is set to ${selectedStrand}.`, "error");
+      return;
+    }
+
+    // Valid scan
+    scannedData = data;
+    stopScanner();
+    fillCard(data);
+    submitBtn.disabled = false;
+    rescanBtn.classList.add("show");
+    setStatus("✅ QR scanned! Press Submit to record attendance.", "info");
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────
+  submitBtn.addEventListener("click", async () => {
+    if (!scannedData) return;
+
+    submitBtn.disabled = true;
+    setStatus("⏳ Submitting…", "info");
+
+    try {
+      // Apps Script requires no-cors for cross-origin fetch,
+      // so we use a form POST which follows redirects properly.
+      const params = new URLSearchParams({
+        action: "attendance",
+        payload: JSON.stringify(scannedData)
+      });
+
+      const res = await fetch(BACKEND_URL, {
+        method:   "POST",
+        mode:     "no-cors",           // required for Apps Script cross-origin
+        headers:  { "Content-Type": "application/x-www-form-urlencoded" },
+        body:     params.toString()
+      });
+
+      // no-cors returns an opaque response — we can't read it,
+      // but if it didn't throw, the request was sent successfully.
+      setStatus("✅ Attendance submitted!", "success");
+      addHistory(scannedData);
+      scannedData = null;
+
+    } catch (err) {
+      setStatus("❌ Network error: " + err.message, "error");
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ── Rescan ────────────────────────────────────────────────────────
+  rescanBtn.addEventListener("click", () => {
+    scannedData        = null;
+    submitBtn.disabled = true;
+    rescanBtn.classList.remove("show");
+    clearCard();
+    clearStatus();
+    startScanner();
+  });
+
+  // ── History ───────────────────────────────────────────────────────
+  function addHistory(student) {
+    historyEmpty.style.display = "none";
+    const now  = new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.innerHTML = `
+      <div class="hi-left">
+        <span class="hi-name">${esc(student.name)}</span>
+        <span class="hi-meta">${esc(student.id)} · ${esc(student.section)} · ${esc(student.strand)}</span>
+      </div>
+      <span class="hi-time">${now}</span>
+    `;
+    historyList.prepend(item);
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────
+  startScanner();
+</script>
+
+</body>
+</html>
