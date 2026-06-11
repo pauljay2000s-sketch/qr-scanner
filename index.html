@@ -15,15 +15,15 @@
       --green-bg:   #E6F4ED;
       --red:        #C0392B;
       --red-bg:     #FDECEA;
+      --yellow:     #92400E;
+      --yellow-bg:  #FEF3C7;
       --ink:        #111827;
       --muted:      #6B7280;
       --border:     #E5E7EB;
       --surface:    #FFFFFF;
       --bg:         #F3F6FB;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--bg);
@@ -38,7 +38,7 @@
     header {
       width: 100%;
       background: var(--blue);
-      padding: 1.1rem 1.5rem 1rem;
+      padding: 1rem 1.5rem 0.9rem;
       text-align: center;
       color: white;
       position: relative;
@@ -48,251 +48,131 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255,255,255,0.03) 0px,
-        rgba(255,255,255,0.03) 1px,
-        transparent 1px,
-        transparent 12px
-      );
+      background: repeating-linear-gradient(45deg,rgba(255,255,255,0.03) 0px,rgba(255,255,255,0.03) 1px,transparent 1px,transparent 12px);
       pointer-events: none;
     }
-    .header-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-    }
-    .header-sub {
-      font-size: 0.78rem;
-      opacity: 0.75;
-      margin-top: 0.2rem;
-      font-family: 'DM Mono', monospace;
-    }
+    .header-title { font-size: 1.1rem; font-weight: 700; }
+    .header-sub   { font-size: 0.75rem; opacity: 0.75; margin-top: 0.15rem; font-family: 'DM Mono', monospace; }
 
-    /* ── Main content ── */
-    .content {
+    /* ── Counter bar ── */
+    .counter-bar {
+      width: 100%;
+      background: var(--blue-dark);
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.5rem 1rem;
+    }
+    .counter-item { display: flex; flex-direction: column; align-items: center; color: white; }
+    .counter-num  { font-size: 1.3rem; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+    .counter-lbl  { font-size: 0.65rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.1rem; }
+
+    /* ── Tabs ── */
+    .tabs {
       width: 100%;
       max-width: 420px;
-      padding: 1rem 1rem 3rem;
       display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    /* ── Strand pill selector ── */
-    .strand-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    .strand-label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-    .strand-pills {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-    }
-    .pill {
-      padding: 0.3rem 0.7rem;
-      border-radius: 999px;
-      border: 1.5px solid var(--border);
+      border-bottom: 2px solid var(--border);
+      margin-top: 0.75rem;
       background: var(--surface);
-      font-size: 0.78rem;
+      border-radius: 12px 12px 0 0;
+      overflow: hidden;
+    }
+    .tab {
+      flex: 1;
+      padding: 0.7rem;
+      text-align: center;
+      font-size: 0.82rem;
       font-weight: 700;
-      font-family: 'DM Mono', monospace;
       cursor: pointer;
       color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
       transition: all 0.15s;
       user-select: none;
     }
-    .pill:hover { border-color: var(--blue); color: var(--blue); }
-    .pill.active {
-      background: var(--blue);
-      border-color: var(--blue);
-      color: white;
-    }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); background: var(--blue-light); }
 
-    /* ── Camera card ── */
-    .camera-card {
-      background: var(--surface);
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1.5px solid var(--border);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      position: relative;
-    }
-    .camera-label {
-      padding: 0.7rem 1rem 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .cam-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #ccc;
-      transition: background 0.3s;
-    }
-    .cam-dot.active { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
-    #reader {
+    /* ── Content panels ── */
+    .content {
       width: 100%;
-      min-height: 240px;
+      max-width: 420px;
+      padding: 0.75rem 1rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
     }
-    /* Override html5-qrcode default styles */
+    .panel { display: none; flex-direction: column; gap: 0.85rem; }
+    .panel.active { display: flex; }
+
+    /* ── Strand pills ── */
+    .strand-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .strand-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .strand-pills { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .pill { padding: 0.25rem 0.6rem; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); font-size: 0.75rem; font-weight: 700; font-family: 'DM Mono', monospace; cursor: pointer; color: var(--muted); transition: all 0.15s; user-select: none; }
+    .pill:hover { border-color: var(--blue); color: var(--blue); }
+    .pill.active { background: var(--blue); border-color: var(--blue); color: white; }
+
+    /* ── Camera ── */
+    .camera-card { background: var(--surface); border-radius: 14px; overflow: hidden; border: 1.5px solid var(--border); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .camera-label { padding: 0.6rem 1rem 0.4rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-family: 'DM Mono', monospace; display: flex; align-items: center; gap: 0.4rem; }
+    .cam-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; transition: background 0.3s; }
+    .cam-dot.active { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+    #reader { width: 100%; min-height: 230px; }
     #reader video { border-radius: 0 !important; }
     #reader img   { display: none !important; }
 
     /* ── Info card ── */
-    .info-card {
-      background: var(--surface);
-      border-radius: 16px;
-      border: 1.5px solid var(--border);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      overflow: hidden;
-    }
-    .info-card-header {
-      padding: 0.7rem 1rem 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      border-bottom: 1px solid var(--border);
-    }
-    .info-rows { padding: 0.25rem 0; }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.6rem 1rem;
-      border-bottom: 1px solid var(--border);
-    }
+    .info-card { background: var(--surface); border-radius: 14px; border: 1.5px solid var(--border); box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .info-card-header { padding: 0.6rem 1rem 0.4rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-family: 'DM Mono', monospace; border-bottom: 1px solid var(--border); }
+    .info-rows { padding: 0.2rem 0; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); }
     .info-row:last-child { border-bottom: none; }
-    .info-key {
-      font-size: 0.78rem;
-      font-weight: 700;
-      font-family: 'DM Mono', monospace;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .info-val {
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: var(--ink);
-      text-align: right;
-    }
+    .info-key { font-size: 0.75rem; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .info-val { font-size: 0.9rem; font-weight: 600; color: var(--ink); text-align: right; }
     .info-val.empty { color: var(--border); font-weight: 400; }
 
     /* ── Status banner ── */
-    .status-banner {
-      border-radius: 10px;
-      padding: 0.7rem 1rem;
-      font-size: 0.88rem;
-      font-weight: 600;
-      display: none;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .status-banner.show { display: flex; }
-    .status-banner.error   { background: var(--red-bg);   color: var(--red);   }
-    .status-banner.success { background: var(--green-bg); color: var(--green); }
-    .status-banner.info    { background: var(--blue-light); color: var(--blue); }
+    .status-banner { border-radius: 10px; padding: 0.65rem 1rem; font-size: 0.85rem; font-weight: 600; display: none; align-items: center; gap: 0.5rem; }
+    .status-banner.show  { display: flex; }
+    .status-banner.error   { background: var(--red-bg);    color: var(--red);    }
+    .status-banner.success { background: var(--green-bg);  color: var(--green);  }
+    .status-banner.info    { background: var(--blue-light); color: var(--blue);  }
+    .status-banner.warning { background: var(--yellow-bg); color: var(--yellow); }
 
     /* ── Buttons ── */
-    .btn-primary {
-      width: 100%;
-      padding: 0.85rem;
-      border: none;
-      border-radius: 10px;
-      background: var(--blue);
-      color: white;
-      font-size: 0.95rem;
-      font-weight: 700;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      letter-spacing: 0.02em;
-      transition: background 0.15s, transform 0.1s, opacity 0.15s;
-    }
+    .btn-primary { width: 100%; padding: 0.8rem; border: none; border-radius: 10px; background: var(--blue); color: white; font-size: 0.92rem; font-weight: 700; font-family: 'DM Sans', sans-serif; cursor: pointer; letter-spacing: 0.02em; transition: background 0.15s, transform 0.1s, opacity 0.15s; }
     .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
     .btn-primary:active:not(:disabled) { transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .btn-secondary {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1.5px solid var(--blue);
-      border-radius: 10px;
-      background: transparent;
-      color: var(--blue);
-      font-size: 0.9rem;
-      font-weight: 700;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      transition: background 0.15s;
-      display: none;
-    }
+    .btn-secondary { width: 100%; padding: 0.7rem; border: 1.5px solid var(--blue); border-radius: 10px; background: transparent; color: var(--blue); font-size: 0.88rem; font-weight: 700; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; display: none; }
     .btn-secondary:hover { background: var(--blue-light); }
     .btn-secondary.show { display: block; }
-
     .btn-row { display: flex; flex-direction: column; gap: 0.5rem; }
 
-    /* ── History ── */
-    .history-section { display: flex; flex-direction: column; gap: 0.5rem; }
-    .section-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-    .history-empty {
-      font-size: 0.85rem;
-      color: var(--border);
-      font-style: italic;
-      padding: 0.3rem 0;
-    }
-    .history-item {
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 0.65rem 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      animation: slideIn 0.25s ease;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .hi-left { display: flex; flex-direction: column; gap: 0.1rem; }
-    .hi-name { font-size: 0.88rem; font-weight: 700; color: var(--ink); }
-    .hi-meta { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
-    .hi-time {
-      font-size: 0.75rem;
-      font-family: 'DM Mono', monospace;
-      color: var(--green);
-      font-weight: 600;
-      background: var(--green-bg);
-      padding: 0.2rem 0.5rem;
-      border-radius: 6px;
-    }
+    /* ── Today's log (attendance tab) ── */
+    .log-toolbar { display: flex; align-items: center; justify-content: space-between; }
+    .log-date { font-size: 0.78rem; font-family: 'DM Mono', monospace; color: var(--muted); font-weight: 600; }
+    .btn-refresh { padding: 0.35rem 0.8rem; border: 1.5px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 0.78rem; font-weight: 700; color: var(--blue); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s; }
+    .btn-refresh:hover { background: var(--blue-light); }
+    .log-loading { font-size: 0.85rem; color: var(--muted); text-align: center; padding: 1.5rem 0; font-style: italic; }
+    .log-empty   { font-size: 0.85rem; color: var(--border); text-align: center; padding: 1.5rem 0; font-style: italic; }
+
+    /* filter row */
+    .filter-row { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+    .filter-input { flex: 1; min-width: 120px; padding: 0.4rem 0.7rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.15s; }
+    .filter-input:focus { border-color: var(--blue); }
+
+    .log-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .log-item { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 0.6rem 0.9rem; display: flex; justify-content: space-between; align-items: center; animation: slideIn 0.2s ease; }
+    .log-item.duplicate { border-color: #FCD34D; background: var(--yellow-bg); }
+    @keyframes slideIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+    .log-left { display: flex; flex-direction: column; gap: 0.1rem; }
+    .log-name { font-size: 0.88rem; font-weight: 700; color: var(--ink); }
+    .log-meta { font-size: 0.72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .log-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
+    .log-time { font-size: 0.72rem; font-family: 'DM Mono', monospace; color: var(--green); font-weight: 600; background: var(--green-bg); padding: 0.18rem 0.45rem; border-radius: 5px; }
+    .log-dup-badge { font-size: 0.65rem; font-weight: 700; background: #FCD34D; color: #92400E; padding: 0.1rem 0.4rem; border-radius: 4px; text-align: center; }
   </style>
 </head>
 <body>
@@ -302,80 +182,127 @@
   <div class="header-sub">Point camera at student QR code</div>
 </header>
 
+<!-- Counter bar -->
+<div class="counter-bar">
+  <div class="counter-item">
+    <span class="counter-num" id="cntTotal">—</span>
+    <span class="counter-lbl">Today's Total</span>
+  </div>
+  <div class="counter-item">
+    <span class="counter-num" id="cntSession">0</span>
+    <span class="counter-lbl">This Session</span>
+  </div>
+  <div class="counter-item">
+    <span class="counter-num" id="cntDup">0</span>
+    <span class="counter-lbl">Duplicates</span>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" data-tab="scan">📷 Scanner</div>
+  <div class="tab" data-tab="log">📋 Today's Log</div>
+</div>
+
 <div class="content">
 
-  <!-- Strand filter -->
-  <div class="strand-row">
-    <span class="strand-label">Strand</span>
-    <div class="strand-pills" id="strandPills">
-      <div class="pill active" data-strand="">ALL</div>
-      <div class="pill" data-strand="HUMSS">HUMSS</div>
-      <div class="pill" data-strand="STEM">STEM</div>
-      <div class="pill" data-strand="ABM">ABM</div>
-      <div class="pill" data-strand="GAS">GAS</div>
-      <div class="pill" data-strand="TVL">TVL</div>
-      <div class="pill" data-strand="ARTS">ARTS</div>
+  <!-- ── SCAN PANEL ── -->
+  <div class="panel active" id="panel-scan">
+
+    <div class="strand-row">
+      <span class="strand-label">Strand</span>
+      <div class="strand-pills" id="strandPills">
+        <div class="pill active" data-strand="">ALL</div>
+        <div class="pill" data-strand="HUMSS">HUMSS</div>
+        <div class="pill" data-strand="STEM">STEM</div>
+        <div class="pill" data-strand="ABM">ABM</div>
+        <div class="pill" data-strand="GAS">GAS</div>
+        <div class="pill" data-strand="TVL">TVL</div>
+        <div class="pill" data-strand="ARTS">ARTS</div>
+      </div>
     </div>
-  </div>
 
-  <!-- Camera -->
-  <div class="camera-card">
-    <div class="camera-label">
-      <span class="cam-dot" id="camDot"></span>
-      Camera
+    <div class="camera-card">
+      <div class="camera-label">
+        <span class="cam-dot" id="camDot"></span>
+        Camera
+      </div>
+      <div id="reader"></div>
     </div>
-    <div id="reader"></div>
-  </div>
 
-  <!-- Status banner -->
-  <div class="status-banner" id="statusBanner"></div>
+    <div class="status-banner" id="statusBanner"></div>
 
-  <!-- Student info -->
-  <div class="info-card">
-    <div class="info-card-header">Student Info</div>
-    <div class="info-rows">
-      <div class="info-row"><span class="info-key">ID</span>      <span class="info-val empty" id="fId">—</span></div>
-      <div class="info-row"><span class="info-key">Name</span>    <span class="info-val empty" id="fName">—</span></div>
-      <div class="info-row"><span class="info-key">Section</span> <span class="info-val empty" id="fSection">—</span></div>
-      <div class="info-row"><span class="info-key">Strand</span>  <span class="info-val empty" id="fStrand">—</span></div>
+    <div class="info-card">
+      <div class="info-card-header">Student Info</div>
+      <div class="info-rows">
+        <div class="info-row"><span class="info-key">ID</span>      <span class="info-val empty" id="fId">—</span></div>
+        <div class="info-row"><span class="info-key">Name</span>    <span class="info-val empty" id="fName">—</span></div>
+        <div class="info-row"><span class="info-key">Section</span> <span class="info-val empty" id="fSection">—</span></div>
+        <div class="info-row"><span class="info-key">Strand</span>  <span class="info-val empty" id="fStrand">—</span></div>
+      </div>
     </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="submitBtn" disabled>Submit Attendance</button>
+      <button class="btn-secondary" id="rescanBtn">↩ Scan Another Student</button>
+    </div>
+
   </div>
 
-  <!-- Buttons -->
-  <div class="btn-row">
-    <button class="btn-primary" id="submitBtn" disabled>Submit Attendance</button>
-    <button class="btn-secondary" id="rescanBtn">↩ Scan Another Student</button>
-  </div>
+  <!-- ── LOG PANEL ── -->
+  <div class="panel" id="panel-log">
 
-  <!-- History -->
-  <div class="history-section">
-    <div class="section-label">Session Log</div>
-    <div class="history-empty" id="historyEmpty">No scans yet this session.</div>
-    <div id="historyList"></div>
+    <div class="log-toolbar">
+      <span class="log-date" id="logDate">—</span>
+      <button class="btn-refresh" id="refreshBtn">⟳ Refresh</button>
+    </div>
+
+    <div class="filter-row">
+      <input class="filter-input" id="filterInput" type="text" placeholder="Search name, ID, section…" />
+    </div>
+
+    <div id="logContent">
+      <div class="log-loading">Loading today's attendance…</div>
+    </div>
+
   </div>
 
 </div>
 
 <script>
-  // ── Config ────────────────────────────────────────────────────────
-  // YOUR deployed Apps Script URL:
   const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxqk1rzXE_PzHCDhgaEOSdsEGBIc1yy5uxUpGILDX3QEgxollNT30kdofvi82JiuFY4/exec";
 
-  // ── State ─────────────────────────────────────────────────────────
+  // ── State ────────────────────────────────────────────────────────
   let scannedData    = null;
   let selectedStrand = "";
   let html5QrCode    = null;
   let scannerRunning = false;
+  let sessionCount   = 0;
+  let dupCount       = 0;
+  let todayLog       = [];   // [{id, name, section, strand, times:[...]}]
+  let filterText     = "";
 
-  // ── DOM refs ──────────────────────────────────────────────────────
-  const submitBtn   = document.getElementById("submitBtn");
-  const rescanBtn   = document.getElementById("rescanBtn");
-  const statusEl    = document.getElementById("statusBanner");
-  const camDot      = document.getElementById("camDot");
-  const historyList = document.getElementById("historyList");
-  const historyEmpty= document.getElementById("historyEmpty");
+  // ── DOM ──────────────────────────────────────────────────────────
+  const submitBtn  = document.getElementById("submitBtn");
+  const rescanBtn  = document.getElementById("rescanBtn");
+  const statusEl   = document.getElementById("statusBanner");
+  const camDot     = document.getElementById("camDot");
+  const cntTotal   = document.getElementById("cntTotal");
+  const cntSession = document.getElementById("cntSession");
+  const cntDup     = document.getElementById("cntDup");
 
-  // ── Strand pills ──────────────────────────────────────────────────
+  // ── Tabs ─────────────────────────────────────────────────────────
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("panel-" + tab.dataset.tab).classList.add("active");
+      if (tab.dataset.tab === "log") loadTodayLog();
+    });
+  });
+
+  // ── Strand pills ─────────────────────────────────────────────────
   document.getElementById("strandPills").addEventListener("click", e => {
     const pill = e.target.closest(".pill");
     if (!pill) return;
@@ -384,50 +311,40 @@
     selectedStrand = pill.dataset.strand;
   });
 
-  // ── Status helper ─────────────────────────────────────────────────
+  // ── Status helpers ───────────────────────────────────────────────
   function setStatus(msg, type = "error") {
     statusEl.textContent = msg;
     statusEl.className   = "status-banner show " + type;
   }
-  function clearStatus() {
-    statusEl.className = "status-banner";
-  }
+  function clearStatus() { statusEl.className = "status-banner"; }
 
-  // ── Card fill helpers ─────────────────────────────────────────────
   function fillCard(data) {
     const set = (id, val) => {
       const el = document.getElementById(id);
       el.textContent = val;
       el.classList.remove("empty");
     };
-    set("fId",      data.id);
-    set("fName",    data.name);
-    set("fSection", data.section);
-    set("fStrand",  data.strand);
+    set("fId", data.id); set("fName", data.name);
+    set("fSection", data.section); set("fStrand", data.strand);
   }
-
   function clearCard() {
     ["fId","fName","fSection","fStrand"].forEach(id => {
       const el = document.getElementById(id);
-      el.textContent = "—";
-      el.classList.add("empty");
+      el.textContent = "—"; el.classList.add("empty");
     });
   }
 
-  // ── QR Scanner ────────────────────────────────────────────────────
+  // ── Scanner ──────────────────────────────────────────────────────
   function startScanner() {
     html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
-      onScanSuccess,
-      () => {}
+      { fps: 10, qrbox: { width: 210, height: 210 } },
+      onScanSuccess, () => {}
     ).then(() => {
       scannerRunning = true;
       camDot.classList.add("active");
-    }).catch(err => {
-      setStatus("❌ Camera error: " + err, "error");
-    });
+    }).catch(err => setStatus("❌ Camera error: " + err, "error"));
   }
 
   function stopScanner() {
@@ -441,58 +358,66 @@
 
   function onScanSuccess(decodedText) {
     let data;
-    try {
-      data = JSON.parse(decodedText);
-    } catch {
-      setStatus("❌ Invalid QR — expected JSON format.", "error");
-      return;
-    }
+    try { data = JSON.parse(decodedText); }
+    catch { setStatus("❌ Invalid QR — expected JSON format.", "error"); return; }
 
     if (!data.id || !data.name || !data.section || !data.strand) {
-      setStatus("❌ QR is missing required fields (id, name, section, strand).", "error");
-      return;
+      setStatus("❌ QR is missing required fields.", "error"); return;
     }
-
     if (selectedStrand && data.strand.toUpperCase() !== selectedStrand) {
-      setStatus(`❌ This QR is for ${data.strand}, but scanner is set to ${selectedStrand}.`, "error");
-      return;
+      setStatus(`❌ QR is for ${data.strand}, scanner set to ${selectedStrand}.`, "error"); return;
     }
 
-    // Valid scan
+    // Check duplicate in today's log
+    const existing = todayLog.find(r => r.id === String(data.id));
+    if (existing) {
+      setStatus(`⚠️ ${data.name} already scanned today (${existing.times[0]}). Submit again to log re-entry.`, "warning");
+    } else {
+      setStatus("✅ QR scanned! Press Submit to record attendance.", "info");
+    }
+
     scannedData = data;
     stopScanner();
     fillCard(data);
     submitBtn.disabled = false;
     rescanBtn.classList.add("show");
-    setStatus("✅ QR scanned! Press Submit to record attendance.", "info");
   }
 
-  // ── Submit ────────────────────────────────────────────────────────
+  // ── Submit ───────────────────────────────────────────────────────
   submitBtn.addEventListener("click", async () => {
     if (!scannedData) return;
-
     submitBtn.disabled = true;
     setStatus("⏳ Submitting…", "info");
 
     try {
-      // Apps Script requires no-cors for cross-origin fetch,
-      // so we use a form POST which follows redirects properly.
       const params = new URLSearchParams({
-        action: "attendance",
+        action:  "attendance",
         payload: JSON.stringify(scannedData)
       });
-
-      const res = await fetch(BACKEND_URL, {
-        method:   "POST",
-        mode:     "no-cors",           // required for Apps Script cross-origin
-        headers:  { "Content-Type": "application/x-www-form-urlencoded" },
-        body:     params.toString()
+      await fetch(BACKEND_URL, {
+        method:  "POST",
+        mode:    "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body:    params.toString()
       });
 
-      // no-cors returns an opaque response — we can't read it,
-      // but if it didn't throw, the request was sent successfully.
-      setStatus("✅ Attendance submitted!", "success");
-      addHistory(scannedData);
+      // Check if duplicate
+      const existing = todayLog.find(r => r.id === String(scannedData.id));
+      const now = new Date().toLocaleTimeString("en-PH", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+
+      if (existing) {
+        existing.times.unshift(now);
+        dupCount++;
+        cntDup.textContent = dupCount;
+        setStatus(`⚠️ Duplicate logged — ${scannedData.name} scanned again at ${now}.`, "warning");
+      } else {
+        todayLog.unshift({ id: String(scannedData.id), name: scannedData.name, section: scannedData.section, strand: scannedData.strand, times: [now] });
+        setStatus(`✅ Attendance recorded at ${now}!`, "success");
+      }
+
+      sessionCount++;
+      cntSession.textContent = sessionCount;
+      cntTotal.textContent   = todayLog.length;
       scannedData = null;
 
     } catch (err) {
@@ -501,40 +426,101 @@
     }
   });
 
-  // ── Rescan ────────────────────────────────────────────────────────
+  // ── Rescan ───────────────────────────────────────────────────────
   rescanBtn.addEventListener("click", () => {
-    scannedData        = null;
+    scannedData = null;
     submitBtn.disabled = true;
     rescanBtn.classList.remove("show");
-    clearCard();
-    clearStatus();
+    clearCard(); clearStatus();
     startScanner();
   });
 
-  // ── History ───────────────────────────────────────────────────────
-  function addHistory(student) {
-    historyEmpty.style.display = "none";
-    const now  = new Date().toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    const item = document.createElement("div");
-    item.className = "history-item";
-    item.innerHTML = `
-      <div class="hi-left">
-        <span class="hi-name">${esc(student.name)}</span>
-        <span class="hi-meta">${esc(student.id)} · ${esc(student.section)} · ${esc(student.strand)}</span>
+  // ── Load today's log from backend ─────────────────────────────────
+  async function loadTodayLog() {
+    const logContent = document.getElementById("logContent");
+    logContent.innerHTML = '<div class="log-loading">Loading today\'s attendance…</div>';
+
+    // Set date label
+    const today = new Date().toLocaleDateString("en-PH", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+    document.getElementById("logDate").textContent = today;
+
+    try {
+      const url = BACKEND_URL + "?action=getToday";
+      const res = await fetch(url, { mode: "cors" });
+      const json = await res.json();
+
+      if (json.success && json.records) {
+        // Merge fetched records into local todayLog (deduplicate by id)
+        json.records.forEach(r => {
+          if (!todayLog.find(x => x.id === String(r.id))) {
+            todayLog.push({ id: String(r.id), name: r.name, section: r.section, strand: r.strand, times: r.times });
+          }
+        });
+        cntTotal.textContent = todayLog.length;
+        renderLog();
+      } else {
+        logContent.innerHTML = '<div class="log-empty">No attendance recorded yet today.</div>';
+      }
+    } catch (err) {
+      // Fallback: show whatever we have in local todayLog from this session
+      if (todayLog.length > 0) {
+        renderLog();
+      } else {
+        logContent.innerHTML = '<div class="log-empty">Could not load from server. Scans from this session will appear here after submitting.</div>';
+      }
+    }
+  }
+
+  function renderLog() {
+    const logContent = document.getElementById("logContent");
+    const query = filterText.toLowerCase();
+    const filtered = todayLog.filter(r =>
+      r.name.toLowerCase().includes(query) ||
+      r.id.toLowerCase().includes(query) ||
+      r.section.toLowerCase().includes(query) ||
+      r.strand.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      logContent.innerHTML = '<div class="log-empty">No records match your search.</div>';
+      return;
+    }
+
+    const html = filtered.map(r => `
+      <div class="log-item ${r.times.length > 1 ? "duplicate" : ""}">
+        <div class="log-left">
+          <span class="log-name">${esc(r.name)}</span>
+          <span class="log-meta">${esc(r.id)} · ${esc(r.section)} · ${esc(r.strand)}</span>
+        </div>
+        <div class="log-right">
+          <span class="log-time">${esc(r.times[0])}</span>
+          ${r.times.length > 1 ? `<span class="log-dup-badge">+${r.times.length - 1} re-entry</span>` : ""}
+        </div>
       </div>
-      <span class="hi-time">${now}</span>
-    `;
-    historyList.prepend(item);
+    `).join("");
+
+    logContent.innerHTML = `<div class="log-list">${html}</div>`;
   }
 
+  // ── Filter ───────────────────────────────────────────────────────
+  document.getElementById("filterInput").addEventListener("input", e => {
+    filterText = e.target.value;
+    renderLog();
+  });
+
+  document.getElementById("refreshBtn").addEventListener("click", loadTodayLog);
+
+  // ── Escape HTML ──────────────────────────────────────────────────
   function esc(s) {
-    return String(s)
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
-  // ── Boot ──────────────────────────────────────────────────────────
+  // ── Boot ─────────────────────────────────────────────────────────
+  const todayStr = new Date().toLocaleDateString("en-PH",{month:"short",day:"numeric"});
+  document.querySelector(".header-sub").textContent = todayStr + " · Point camera at student QR code";
   startScanner();
+  // Pre-load today's count silently
+  loadTodayLog().then(() => { document.getElementById("panel-log").classList.remove("active"); document.getElementById("panel-scan").classList.add("active"); document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === "scan")); });
 </script>
 
 </body>
